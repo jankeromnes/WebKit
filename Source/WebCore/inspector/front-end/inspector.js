@@ -29,6 +29,11 @@
  */
 
 var WebInspector = {
+    _createEditors: function()
+    {
+        this.editors = {};
+    },
+
     _createPanels: function()
     {
         this.panels = {};
@@ -482,6 +487,11 @@ WebInspector._doLoadedDoneWithCapabilities = function()
     if (this._zoomLevel)
         this._requestZoom();
 
+    var defaultEditor = WebInspector.UIString("default editor");
+    var createEditorSetting = WebInspector.settings.createSetting("createEditorHandler", defaultEditor);
+    this.editResourceRegistry = new WebInspector.HandlerRegistry(createEditorSetting);
+    this.editResourceRegistry.registerHandler(defaultEditor, function() { return false; });
+
     var autoselectPanel = WebInspector.UIString("a panel chosen automatically");
     var openAnchorLocationSetting = WebInspector.settings.createSetting("openLinkHandler", autoselectPanel);
     this.openAnchorLocationRegistry = new WebInspector.HandlerRegistry(openAnchorLocationSetting);
@@ -489,6 +499,7 @@ WebInspector._doLoadedDoneWithCapabilities = function()
 
     this.workspace = new WebInspector.Workspace();
 
+    this._createEditors();
     this._createPanels();
     this._createGlobalStatusBarItems();
 

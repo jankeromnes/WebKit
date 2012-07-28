@@ -64,6 +64,7 @@ function defineCommonExtensionSymbols(apiPrivate)
         ElementsPanelObjectSelected: "panel-objectSelected-elements",
         NetworkRequestFinished: "network-request-finished",
         Reset: "reset",
+        EditResource: "edit-resource-",
         OpenResource: "open-resource",
         PanelSearch: "panel-search-",
         Reload: "Reload",
@@ -79,6 +80,7 @@ function defineCommonExtensionSymbols(apiPrivate)
         AddAuditResult: "addAuditResult",
         AddConsoleMessage: "addConsoleMessage",
         AddRequestHeaders: "addRequestHeaders",
+        CreateEditor: "createEditor",
         CreatePanel: "createPanel",
         CreateSidebarPane: "createSidebarPane",
         CreateStatusBarButton: "createStatusBarButton",
@@ -89,6 +91,7 @@ function defineCommonExtensionSymbols(apiPrivate)
         GetRequestContent: "getRequestContent",
         GetResourceContent: "getResourceContent",
         Subscribe: "subscribe",
+        SetEditResourceHandler: "setEditResourceHandler",
         SetOpenResourceHandler: "setOpenResourceHandler",
         SetResourceContent: "setResourceContent",
         SetSidebarContent: "setSidebarContent",
@@ -182,6 +185,7 @@ function InspectorExtensionAPI()
     defineDeprecatedProperty(this, "webInspector", "resources", "network");
     this.timeline = new Timeline();
     this.console = new ConsoleAPI();
+    this.sources = new Sources();
 
     this.onReset = new EventSink(events.Reset);
 }
@@ -724,6 +728,66 @@ function TimelineImpl()
 /**
  * @constructor
  */
+function Sources()
+{
+}
+
+Sources.prototype = {
+    createEditor: function(title, page, callback)
+    {
+        var id = "extension-editor-" + extensionServer.nextObjectId();
+        var request = {
+            command: commands.CreateEditor,
+            id: id,
+            title: title,
+            page: page
+        };
+        extensionServer.sendRequest(request, callback && callback.bind(this, new ExtensionEditor(id)));
+    },
+
+    setEditResourceHandler: function(callback)
+    {
+        var hadHandler = extensionServer.hasHandler(events.EditResource);
+
+        if (!callback)
+            extensionServer.unregisterHandler(events.EditResource);
+        else {
+            function callbackWrapper(message)
+            {
+                callback.call(null, new Resource(message.resource), message.lineNumber);
+            }
+            extensionServer.registerHandler(events.EditResource, callbackWrapper);
+        }
+        // Only send command if we either removed an existing handler or added handler and had none before.
+        if (hadHandler === !callback)
+            extensionServer.sendRequest({ command: commands.SetEditResourceHandler, "handlerPresent": !!callback });
+    }
+}
+
+/**
+ * @constructor
+ * @extends {ExtensionViewImpl}
+ */
+function ExtensionEditorImpl(id)
+{
+    ExtensionViewImpl.call(this, id);
+    // this.onSearch = new EventSink(events.EditorSearch + id); // TODO
+
+    function dispatchResourceEvent(message)
+    {
+        this._fire(new Resource(message.arguments[0]));
+    }
+    this.onOpenResource = new EventSink(events.EditResource + id, dispatchResourceEvent);
+}
+
+ExtensionEditorImpl.prototype = {
+};
+
+ExtensionEditorImpl.prototype.__proto__ = ExtensionViewImpl.prototype;
+
+/**
+ * @constructor
+ */
 function ExtensionServerClient()
 {
     this._callbacks = {};
@@ -848,6 +912,7 @@ var AuditCategory = declareInterfaceClass(AuditCategoryImpl);
 var AuditResult = declareInterfaceClass(AuditResultImpl);
 var Button = declareInterfaceClass(ButtonImpl);
 var EventSink = declareInterfaceClass(EventSinkImpl);
+var ExtensionEditor = declareInterfaceClass(ExtensionEditorImpl);
 var ExtensionPanel = declareInterfaceClass(ExtensionPanelImpl);
 var ExtensionSidebarPane = declareInterfaceClass(ExtensionSidebarPaneImpl);
 var PanelWithSidebar = declareInterfaceClass(PanelWithSidebarImpl);

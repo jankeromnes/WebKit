@@ -50,6 +50,7 @@ WebInspector.ExtensionServer = function()
     this._registerHandler(commands.AddAuditResult, this._onAddAuditResult.bind(this));
     this._registerHandler(commands.AddConsoleMessage, this._onAddConsoleMessage.bind(this));
     this._registerHandler(commands.AddRequestHeaders, this._onAddRequestHeaders.bind(this));
+    this._registerHandler(commands.CreateEditor, this._onCreateEditor.bind(this));
     this._registerHandler(commands.CreatePanel, this._onCreatePanel.bind(this));
     this._registerHandler(commands.CreateSidebarPane, this._onCreateSidebarPane.bind(this));
     this._registerHandler(commands.CreateStatusBarButton, this._onCreateStatusBarButton.bind(this));
@@ -61,6 +62,7 @@ WebInspector.ExtensionServer = function()
     this._registerHandler(commands.GetResourceContent, this._onGetResourceContent.bind(this));
     this._registerHandler(commands.Log, this._onLog.bind(this));
     this._registerHandler(commands.Reload, this._onReload.bind(this));
+    //this._registerHandler(commands.SetEditResourceHandler, this._onSetEditResourceHandler.bind(this));
     this._registerHandler(commands.SetOpenResourceHandler, this._onSetOpenResourceHandler.bind(this));
     this._registerHandler(commands.SetResourceContent, this._onSetResourceContent.bind(this));
     this._registerHandler(commands.SetSidebarHeight, this._onSetSidebarHeight.bind(this));
@@ -186,6 +188,38 @@ WebInspector.ExtensionServer.prototype = {
             }
         }
         NetworkAgent.setExtraHTTPHeaders(allHeaders);
+    },
+
+    _onCreateEditor: function(message, port)
+    {
+        var id = message.id;
+        // The ids are generated on the client API side and must be unique, so the check below
+        // shouldn't be hit unless someone is bypassing the API.
+        if (id in this._clientObjects || id in WebInspector.editors)
+            return this._status.E_EXISTS(id);
+
+        var page = this._expandResourcePath(port._extensionOrigin, message.page);
+        var editor = new WebInspector.ExtensionView(id, page, "extension fill");
+        console.log('extension editor', id, 'created!');
+        this._clientObjects[id] = editor;
+        WebInspector.editors[id] = editor;
+
+        WebInspector.editResourceRegistry.registerHandler(WebInspector.UIString(message.title), this._notifyEditResource.bind(this, id));
+
+        return this._status.OK();
+    },
+
+    _notifyEditResource: function(id, details) {
+        var contentProvider = /** @type {WebInspector.UISourceCode} */ details.uiSourceCode;
+        
+        this._postNotification(WebInspector.extensionAPI.Events.EditResource + id, this._makeResource(contentProvider));
+
+        if (details.parent) {
+            console.log('showing with parent',parent);
+            WebInspector.editors[id].show(details.parent);
+        }
+
+        return true;
     },
 
     _onCreatePanel: function(message, port)

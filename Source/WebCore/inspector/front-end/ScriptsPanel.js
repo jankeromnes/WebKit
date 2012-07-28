@@ -461,12 +461,17 @@ WebInspector.ScriptsPanel.prototype = {
     _createSourceFrame: function(uiSourceCode)
     {
         var sourceFrame;
-        if (uiSourceCode instanceof WebInspector.SnippetJavaScriptSource) {
+        var handled = WebInspector.editResourceRegistry.dispatch({ uiSourceCode: uiSourceCode });
+
+        if (handled) {
+            // We have an extension editor
+            sourceFrame = new WebInspector.ExtensionSourceFrame(uiSourceCode);
+        } else if (uiSourceCode instanceof WebInspector.SnippetJavaScriptSource) {
             var snippetJavaScriptSource = /** @type {WebInspector.SnippetJavaScriptSource} */ uiSourceCode;
             sourceFrame = new WebInspector.SnippetJavaScriptSourceFrame(this, snippetJavaScriptSource);
         } else if (uiSourceCode instanceof WebInspector.JavaScriptSource) {
-                var javaScriptSource = /** @type {WebInspector.JavaScriptSource} */ uiSourceCode;
-                sourceFrame = new WebInspector.JavaScriptSourceFrame(this, javaScriptSource);
+            var javaScriptSource = /** @type {WebInspector.JavaScriptSource} */ uiSourceCode;
+            sourceFrame = new WebInspector.JavaScriptSourceFrame(this, javaScriptSource);
         } else
             sourceFrame = new WebInspector.UISourceCodeFrame(uiSourceCode);
         this._sourceFramesByUISourceCode.put(uiSourceCode, sourceFrame);

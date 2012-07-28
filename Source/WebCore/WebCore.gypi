@@ -6278,6 +6278,7 @@
             'inspector/front-end/ExtensionPanel.js',
             'inspector/front-end/ExtensionRegistryStub.js',
             'inspector/front-end/ExtensionServer.js',
+            'inspector/front-end/ExtensionSourceFrame.js',
             'inspector/front-end/ExtensionView.js',
             'inspector/front-end/FileManager.js',
             'inspector/front-end/FileContentView.js',
