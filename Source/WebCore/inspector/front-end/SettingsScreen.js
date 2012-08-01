@@ -916,6 +916,83 @@ WebInspector.ExperimentsSettingsTab.prototype.__proto__ = WebInspector.SettingsT
 
 /**
  * @constructor
+ * @extends {WebInspector.SettingsTab}
+ */
+WebInspector.ExtensionSettingsTab = function(name)
+{
+    WebInspector.SettingsTab.call(this);
+    this._name = name;
+    this._sections = {};
+}
+
+WebInspector.ExtensionSettingsTab.prototype = {
+    /**
+     * @param {string} section
+     * @return {!Element}
+     */
+    _getOrCreateSection: function(section)
+    {
+        if (!this._sections[section])
+            this._sections[section] = this._appendSection(section === "" ? undefined : section);
+        return this._sections[section];
+    },
+
+    /**
+     * @param {string} id
+     * @param {string} name
+     * @param {string|boolean} value
+     * @return {WebInspector.Setting}
+     */
+    _createSetting: function(id, name, value)
+    {
+        var setting = WebInspector.settings.createSetting(name, value);
+        function settingChangeListener()
+        {
+            WebInspector.extensionServer.notifySettingChanged(id, setting.get());
+        }
+        setting.addChangeListener(settingChangeListener.bind(this));
+        return setting;
+    },
+
+    /**
+     * @param {string} id
+     * @param {string} section
+     * @param {string} name
+     * @param {boolean} checked
+     */
+    createCheckbox: function(id, section, name, checked)
+    {
+        var sectionName = section || "";
+        var setting = this._createSetting(id, name, checked);
+        var p = this._getOrCreateSection(sectionName);
+
+        p.appendChild(this._createCheckboxSetting(name, setting));
+    },
+
+    /**
+     * @param {string} id
+     * @param {string} section
+     * @param {string} name
+     * @param {Array.<string>} options
+     */
+    createSelect: function(id, section, name, options)
+    {
+        var sectionName = section || "";
+        var setting = this._createSetting(id, name, options[0]);
+        var p = this._getOrCreateSection(sectionName);
+        var choices = [];
+
+        for (var i = 0; i < options.length; i++)
+            choices.push([ options[i], options[i] ]);
+
+        p.appendChild(this._createSelectSetting(name, choices, setting));
+    }
+}
+
+WebInspector.ExtensionSettingsTab.prototype.__proto__ = WebInspector.SettingsTab.prototype;
+
+/**
+ * @constructor
  */
 WebInspector.SettingsController = function()
 {
@@ -924,6 +1001,8 @@ WebInspector.SettingsController = function()
 
     /** @type {?WebInspector.SettingsScreen} */
     this._settingsScreen;
+
+    this._tabsToAppend = [];
 }
 
 WebInspector.SettingsController.prototype =
@@ -951,14 +1030,33 @@ WebInspector.SettingsController.prototype =
      */
     showSettingsScreen: function(tabId)
     {
-        if (!this._settingsScreen)
+        if (!this._settingsScreen) {
             this._settingsScreen = new WebInspector.SettingsScreen(this._onHideSettingsScreen.bind(this));
+            for (var i = 0; i < this._tabsToAppend.length; i++)
+                this._settingsScreen._tabbedPane.appendTab.apply(this._settingsScreen._tabbedPane, this._tabsToAppend[i]);
+            this._tabsToAppend = [];
+        }
 
         if (tabId)
             this._settingsScreen.selectTab(tabId);
 
         this._settingsScreen.showModal();
         this._statusBarButton.toggled = true;
+    },
+
+    /**
+     * @param {string} id
+     * @param {string} tabTitle
+     * @param {WebInspector.View} view
+     * @param {string} tabTooltip
+     * @param {boolean} userGesture
+     */
+    appendSettingsTab: function(id, tabTitle, view, tabTooltip, userGesture)
+    {
+        if (this._settingsScreen)
+            this._settingsScreen._tabbedPane.appendTab.apply(this._settingsScreen._tabbedPane, arguments);
+        else
+            this._tabsToAppend.push(arguments);
     },
 
     _hideSettingsScreen: function()

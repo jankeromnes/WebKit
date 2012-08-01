@@ -7,6 +7,21 @@ RUNNING TEST: extension_testAPI
     audits : {
         addCategory : <function>
     }
+    console : {
+        onMessageAdded : {
+            addListener : <function>
+            removeListener : <function>
+        }
+        getMessages : <function>
+        addMessage : <function>
+        Severity : {
+            Tip : "tip"
+            Debug : "debug"
+            Log : "log"
+            Warning : "warning"
+            Error : "error"
+        }
+    }
     inspectedWindow : {
         onResourceAdded : {
             addListener : <function>
@@ -19,6 +34,22 @@ RUNNING TEST: extension_testAPI
         reload : <function>
         eval : <function>
         getResources : <function>
+    }
+    network : {
+        onRequestFinished : {
+            addListener : <function>
+            removeListener : <function>
+        }
+        onFinished : {
+            addListener : <function>
+            removeListener : <function>
+        }
+        onNavigated : {
+            addListener : <function>
+            removeListener : <function>
+        }
+        getHAR : <function>
+        addRequestHeaders : <function>
     }
     panels : {
         elements : {
@@ -37,22 +68,6 @@ RUNNING TEST: extension_testAPI
             PreviousSearchResult : "previousSearchResult"
         }
     }
-    network : {
-        onRequestFinished : {
-            addListener : <function>
-            removeListener : <function>
-        }
-        onFinished : {
-            addListener : <function>
-            removeListener : <function>
-        }
-        onNavigated : {
-            addListener : <function>
-            removeListener : <function>
-        }
-        getHAR : <function>
-        addRequestHeaders : <function>
-    }
     resources : {
         onRequestFinished : {
             addListener : <function>
@@ -69,25 +84,14 @@ RUNNING TEST: extension_testAPI
         getHAR : <function>
         addRequestHeaders : <function>
     }
+    settings : {
+        createCheckbox : <function>
+        createSelect : <function>
+    }
     timeline : {
         onEventRecorded : {
             addListener : <function>
             removeListener : <function>
-        }
-    }
-    console : {
-        onMessageAdded : {
-            addListener : <function>
-            removeListener : <function>
-        }
-        getMessages : <function>
-        addMessage : <function>
-        Severity : {
-            Tip : "tip"
-            Debug : "debug"
-            Log : "log"
-            Warning : "warning"
-            Error : "error"
         }
     }
     onReset : {

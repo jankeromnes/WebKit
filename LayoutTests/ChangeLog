@@ -1,3 +1,18 @@
+2012-08-13  Jan Keromnes  <janx@linux.com>
+
+        Web Inspector: Implement settings API for extensions
+        https://bugs.webkit.org/show_bug.cgi?id=91362
+
+        Reviewed by NOBODY (OOPS!).
+
+        Test the creation of a setting using the extensions API and make sure
+        the extension is notified when the setting is changed on the front-end.
+        Also fixed expected output for extension API dump test.
+
+        * inspector/extensions/extensions-api-expected.txt:
+        * inspector/extensions/extensions-settings-expected.txt: Added.
+        * inspector/extensions/extensions-settings.html: Added.
+
 2012-08-13  Florin Malita  <fmalita@chromium.org>
 
         WebKit+SVG does not support color-interpolation-filters or draw filters in correct colorspace

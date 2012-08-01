@@ -42,6 +42,7 @@ WebInspector.ExtensionServer = function()
     this._requests = {};
     this._lastRequestId = 0;
     this._registeredExtensions = {};
+    this._extensionSettingsTabs = {};
     this._status = new WebInspector.ExtensionStatus();
 
     var commands = WebInspector.extensionAPI.Commands;
@@ -51,6 +52,8 @@ WebInspector.ExtensionServer = function()
     this._registerHandler(commands.AddConsoleMessage, this._onAddConsoleMessage.bind(this));
     this._registerHandler(commands.AddRequestHeaders, this._onAddRequestHeaders.bind(this));
     this._registerHandler(commands.CreatePanel, this._onCreatePanel.bind(this));
+    this._registerHandler(commands.CreateSettingsCheckbox, this._onCreateSettingsCheckbox.bind(this));
+    this._registerHandler(commands.CreateSettingsSelect, this._onCreateSettingsSelect.bind(this));
     this._registerHandler(commands.CreateSidebarPane, this._onCreateSidebarPane.bind(this));
     this._registerHandler(commands.CreateStatusBarButton, this._onCreateStatusBarButton.bind(this));
     this._registerHandler(commands.EvaluateOnInspectedPage, this._onEvaluateOnInspectedPage.bind(this));
@@ -84,6 +87,11 @@ WebInspector.ExtensionServer.prototype = {
     notifySearchAction: function(panelId, action, searchString)
     {
         this._postNotification(WebInspector.extensionAPI.Events.PanelSearch + panelId, action, searchString);
+    },
+
+    notifySettingChanged: function(identifier, value)
+    {
+        this._postNotification(WebInspector.extensionAPI.Events.SettingChanged + identifier, value);
     },
 
     notifyViewShown: function(identifier, frameIndex)
@@ -188,6 +196,38 @@ WebInspector.ExtensionServer.prototype = {
         NetworkAgent.setExtraHTTPHeaders(allHeaders);
     },
 
+    _onCreateSettingsCheckbox: function(message, port)
+    {
+        var tab = this._getOrCreateSettingsTab(this._extensionName(port));
+        tab.createCheckbox(message.id, message.section, message.name, message.checked);
+        return this._status.OK();
+    },
+
+    _onCreateSettingsSelect: function(message, port)
+    {
+        var tab = this._getOrCreateSettingsTab(this._extensionName(port));
+        tab.createSelect(message.id, message.section, message.name, message.options);
+        return this._status.OK();
+    },
+
+    _getOrCreateSettingsTab: function(name)
+    {
+        if (!(name in this._extensionSettingsTabs)) {
+            // We don't want extensions to create a settings tab that has the same name as an
+            // already existing non-extension settings tab (e.g. General).
+            if (name in WebInspector.SettingsScreen.Tabs)
+                return this._status.E_EXISTS(name);
+
+            WebInspector.SettingsScreen.Tabs[name] = name;
+            this._extensionSettingsTabs[name] = new WebInspector.ExtensionSettingsTab(name);
+
+            if (WebInspector.settingsController)
+                WebInspector.settingsController.appendSettingsTab(WebInspector.SettingsScreen.Tabs[name], WebInspector.UIString(name), this._extensionSettingsTabs[name]);
+        }
+
+        return this._extensionSettingsTabs[name];
+    },
+
     _onCreatePanel: function(message, port)
     {
         var id = message.id;
@@ -281,7 +321,7 @@ WebInspector.ExtensionServer.prototype = {
 
     _onSetOpenResourceHandler: function(message, port)
     {
-        var name = this._registeredExtensions[port._extensionOrigin].name || ("Extension " + port._extensionOrigin);
+        var name = this._extensionName(port);
         if (message.handlerPresent)
             WebInspector.openAnchorLocationRegistry.registerHandler(name, this._handleOpenURL.bind(this, port));
         else
@@ -527,6 +567,11 @@ WebInspector.ExtensionServer.prototype = {
     _requestById: function(id)
     {
         return this._requests[id];
+    },
+
+    _extensionName: function(port)
+    {
+        return this._registeredExtensions[port._extensionOrigin].name || ("Extension " + port._extensionOrigin);
     },
 
     _onAddAuditCategory: function(message, port)

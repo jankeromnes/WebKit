@@ -69,6 +69,7 @@ function defineCommonExtensionSymbols(apiPrivate)
         Reload: "Reload",
         ResourceAdded: "resource-added",
         ResourceContentCommitted: "resource-content-committed",
+        SettingChanged: "setting-changed-",
         TimelineEventRecorded: "timeline-event-recorded",
         ViewShown: "view-shown-",
         ViewHidden: "view-hidden-"
@@ -80,6 +81,8 @@ function defineCommonExtensionSymbols(apiPrivate)
         AddConsoleMessage: "addConsoleMessage",
         AddRequestHeaders: "addRequestHeaders",
         CreatePanel: "createPanel",
+        CreateSettingsCheckbox: "createSettingsCheckbox",
+        CreateSettingsSelect: "createSettingsSelect",
         CreateSidebarPane: "createSidebarPane",
         CreateStatusBarButton: "createStatusBarButton",
         EvaluateOnInspectedPage: "evaluateOnInspectedPage",
@@ -176,12 +179,13 @@ EventSinkImpl.prototype = {
 function InspectorExtensionAPI()
 {
     this.audits = new Audits();
-    this.inspectedWindow = new InspectedWindow();
-    this.panels = new Panels();
-    this.network = new Network();
-    defineDeprecatedProperty(this, "webInspector", "resources", "network");
-    this.timeline = new Timeline();
     this.console = new ConsoleAPI();
+    this.inspectedWindow = new InspectedWindow();
+    this.network = new Network();
+    this.panels = new Panels();
+    defineDeprecatedProperty(this, "webInspector", "resources", "network");
+    this.settings = new Settings();
+    this.timeline = new Timeline();
 
     this.onReset = new EventSink(events.Reset);
 }
@@ -724,6 +728,61 @@ function TimelineImpl()
 /**
  * @constructor
  */
+function Settings()
+{
+}
+
+Settings.prototype = {
+    /**
+     * @param {string} section
+     * @param {string} name
+     * @param {boolean} checked
+     * @param {function(*)=} callback
+     */
+    createCheckbox: function(section, name, checked, callback) {
+        var id = "checkbox-" + extensionServer.nextObjectId();
+        var request = {
+            id: id,
+            name: name,
+            section: section,
+            command: commands.CreateSettingsCheckbox,
+            checked: checked
+        };
+        extensionServer.sendRequest(request, callback && callback.bind(this, new Setting(id)));
+    },
+
+    /**
+     * @param {string} section
+     * @param {string} name
+     * @param {Array.<string>} options
+     * @param {function(*)=} callback
+     */
+    createSelect: function(section, name, options, callback) {
+        var id = "select-" + extensionServer.nextObjectId();
+        var request = {
+            id: id,
+            name: name,
+            section: section,
+            command: commands.CreateSettingsSelect,
+            options: options
+        };
+        extensionServer.sendRequest(request, callback && callback.bind(this, new Setting(id)));
+    }
+}
+
+/**
+ * @constructor
+ */
+function SettingImpl(id)
+{
+    this.onChange = new EventSink(events.SettingChanged + id);
+}
+
+SettingImpl.prototype = { };
+
+/**
+ * @constructor
+ */
 function ExtensionServerClient()
 {
     this._callbacks = {};
@@ -853,6 +912,7 @@ var ExtensionSidebarPane = declareInterfaceClass(ExtensionSidebarPaneImpl);
 var PanelWithSidebar = declareInterfaceClass(PanelWithSidebarImpl);
 var Request = declareInterfaceClass(RequestImpl);
 var Resource = declareInterfaceClass(ResourceImpl);
+var Setting = declareInterfaceClass(SettingImpl);
 var Timeline = declareInterfaceClass(TimelineImpl);
 
 var extensionServer = new ExtensionServerClient();

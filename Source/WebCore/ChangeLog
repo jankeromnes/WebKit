@@ -1,3 +1,41 @@
+2012-08-13  Jan Keromnes  <janx@linux.com>
+
+        Web Inspector: Implement settings API for extensions
+        https://bugs.webkit.org/show_bug.cgi?id=91362
+
+        Reviewed by NOBODY (OOPS!).
+
+        Implement an extension API to allow Web Inspector extensions to expose
+        their settings in a custom settings panel tab so that users can consult
+        and modify them.
+
+        Test: inspector/extensions/extensions-settings.html
+
+        * inspector/front-end/ExtensionAPI.js:
+        (defineCommonExtensionSymbols):
+        (injectedExtensionAPI.InspectorExtensionAPI):
+        (injectedExtensionAPI.Settings):
+        (injectedExtensionAPI.Settings.prototype.createCheckbox):
+        (injectedExtensionAPI.Settings.prototype.createSelect):
+        (injectedExtensionAPI.SettingImpl):
+        * inspector/front-end/ExtensionServer.js:
+        (WebInspector.ExtensionServer):
+        (WebInspector.ExtensionServer.prototype.notifySettingChanged):
+        (WebInspector.ExtensionServer.prototype._onCreateSettingsCheckbox):
+        (WebInspector.ExtensionServer.prototype._onCreateSettingsSelect):
+        (WebInspector.ExtensionServer.prototype._getOrCreateSettingsTab):
+        (WebInspector.ExtensionServer.prototype._onSetOpenResourceHandler):
+        (WebInspector.ExtensionServer.prototype._extensionName):
+        * inspector/front-end/SettingsScreen.js:
+        (WebInspector.ExtensionSettingsTab):
+        (WebInspector.ExtensionSettingsTab.prototype._getOrCreateSection):
+        (WebInspector.ExtensionSettingsTab.prototype._createSetting.settingChangeListener):
+        (WebInspector.ExtensionSettingsTab.prototype.createCheckbox):
+        (WebInspector.ExtensionSettingsTab.prototype.createSelect):
+        (WebInspector.SettingsController):
+        (WebInspector.SettingsController.prototype.showSettingsScreen):
+        (WebInspector.SettingsController.prototype.appendSettingsTab):
+
 2012-08-10  James Robinson  <jamesr@chromium.org>
 
         [chromium] Clean up dependencies for Canvas2DLayerBridgeTest and GraphicsLayerChromiumTest unit tests

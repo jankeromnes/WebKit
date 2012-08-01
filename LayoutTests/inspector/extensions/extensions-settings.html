@@ -1,0 +1,41 @@
+<html>
+<head>
+<script src="../../http/tests/inspector/inspector-test.js"></script>
+<script src="../../http/tests/inspector/extensions-test.js"></script>
+<script type="text/javascript">
+
+function initialize_extensionsSettingsTest()
+{
+    InspectorTest.checkTheBox = function()
+    {
+        var tab = WebInspector.extensionServer._extensionSettingsTabs['test extension'].element;
+        var section = tab.firstChild.firstChild;
+        var checkbox = section.nextElementSibling.firstChild.firstChild;
+        checkbox.click();
+    };
+};
+
+function extension_testCreateCheckbox(next)
+{
+    function onValueChanged(checked)
+    {
+        output("Checkbox was " + (checked ? "" : "un") + "checked");
+        next();
+    };
+
+    function onCheckboxCreated(checkbox)
+    {
+        output("Checkbox created");
+        checkbox.onChange.addListener(onValueChanged);
+        evaluateOnFrontend("InspectorTest.checkTheBox();");
+    };
+
+    webInspector.settings.createCheckbox('Section', 'Check me', false, onCheckboxCreated);
+};
+
+</script>
+</head>
+<body onload="runTest()">
+<p>Tests WebInspector extension API</p>
+</body>
+</html>
