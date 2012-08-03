@@ -116,6 +116,7 @@ modules = [
         "sources": [
             "AdvancedSearchController.js",
             "Checkbox.js",
+            "CodeMirrorTextEditor.js",
             "ContextMenu.js",
             "CookiesTable.js",
             "DOMSyntaxHighlighter.js",

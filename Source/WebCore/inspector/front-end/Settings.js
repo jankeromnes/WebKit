@@ -194,6 +194,7 @@ WebInspector.ExperimentsSettings = function()
     this.geolocationOverride = this._createExperiment("geolocationOverride", "Override Device Geolocation");
     this.deviceOrientationOverride = this._createExperiment("deviceOrientationOverride", "Override Device Orientation");
     this.sass = this._createExperiment("sass", "Support for SASS");
+    this.codemirror = this._createExperiment("CodeMirror", "Use CodeMirror as editor");
 
     this._cleanUpSetting();
 }

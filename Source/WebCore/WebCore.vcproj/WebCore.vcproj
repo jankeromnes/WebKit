@@ -75326,6 +75326,22 @@
 					>
 				</File>
 				<File
+					RelativePath="..\inspector\front-end\CodeMirrorTextEditor.js"
+					>
+				</File>
+				<File
+					RelativePath="..\inspector\front-end\codemirror.js"
+					>
+				</File>
+				<File
+					RelativePath="..\inspector\front-end\codemirror.css"
+					>
+				</File>
+				<File
+					RelativePath="..\inspector\front-end\cmdevtools.css"
+					>
+				</File>
+				<File
 					RelativePath="..\inspector\front-end\Color.js"
 					>
 				</File>
