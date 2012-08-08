@@ -1,3 +1,33 @@
+2012-08-14  Jan Keromnes  <janx@linux.com>
+
+        Web Inspector: SourceFrame shouldn't be a View
+        https://bugs.webkit.org/show_bug.cgi?id=93444
+
+        Reviewed by NOBODY (OOPS!).
+
+        Move SourceFrame from being a View to being an Object. This will allow
+        future ExtensionSourceFrames to share a single iframe ExtensionView.
+
+        * inspector/front-end/CodeMirrorTextEditor.js:
+        (WebInspector.CodeMirrorTextEditor.prototype.wasShown):
+        (WebInspector.CodeMirrorTextEditor.prototype.willHide):
+        * inspector/front-end/DefaultTextEditor.js:
+        (WebInspector.DefaultTextEditor.prototype.wasShown):
+        (WebInspector.DefaultTextEditor.prototype.willHide):
+        * inspector/front-end/JavaScriptSourceFrame.js:
+        (WebInspector.JavaScriptSourceFrame):
+        * inspector/front-end/SourceFrame.js:
+        (WebInspector.SourceFrame):
+        (WebInspector.SourceFrame.prototype.show):
+        (WebInspector.SourceFrame.prototype.detach):
+        (WebInspector.SourceFrame.prototype.focus):
+        (WebInspector.SourceFrame.prototype._onTextEditorWasShown):
+        (WebInspector.SourceFrame.prototype._onTextEditorWillHide):
+        * inspector/front-end/TabbedPane.js:
+        (WebInspector.TabbedPane.prototype._showTab):
+        (WebInspector.TabbedPane.prototype.wasShown):
+        * inspector/front-end/TextEditor.js:
+
 2012-08-14  Alexandru Chiculita  <achicu@adobe.com>
 
         Layout Test css3/filters/custom/custom-filter-animation.html is failing

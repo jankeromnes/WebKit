@@ -458,7 +458,8 @@ WebInspector.TabbedPane.prototype = {
     _showTab: function(tab)
     {
         tab.tabElement.addStyleClass("selected");
-        tab.view.show(this._contentElement);
+        if (this.isShowing())
+            tab.view.show(this._contentElement);
     },
 
     /**
@@ -468,6 +469,12 @@ WebInspector.TabbedPane.prototype = {
     {
         tab.tabElement.removeStyleClass("selected");
         tab.view.detach();
+    },
+
+    wasShown: function()
+    {
+        if (this._currentTab && this._currentTab.view)
+            this._currentTab.view.show(this._contentElement);
     },
 
     canHighlightLine: function()
