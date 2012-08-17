@@ -86,6 +86,7 @@ WebInspector.View.prototype = {
         this.onResize();
 
         this._callOnVisibleChildren(this._processWasShown);
+
     },
 
     _processWillHide: function()
@@ -140,6 +141,7 @@ WebInspector.View.prototype = {
                 currentParent = currentParent.parentElement;
 
             if (currentParent) {
+                delete this._toShow;
                 this._parentView = currentParent.__view;
                 this._parentView._children.push(this);
                 this._isRoot = false;
@@ -149,8 +151,23 @@ WebInspector.View.prototype = {
             return;
 
         this._visible = true;
+
+        this._toShow = { parentElement: parentElement, insertBefore: insertBefore };
+
         if (this._parentIsShowing())
-            this._processWillShow();
+            this._processShow();
+    },
+
+    _processShow: function()
+    {
+        if (!this._toShow)
+            return;
+
+        var parentElement = this._toShow.parentElement;
+        var insertBefore = this._toShow.insertBefore;
+        delete this._toShow;
+
+        this._processWillShow();
 
         this.element.addStyleClass("visible");
 
@@ -163,8 +180,10 @@ WebInspector.View.prototype = {
                 WebInspector.View._originalAppendChild.call(parentElement, this.element);
         }
 
-        if (this._parentIsShowing())
-            this._processWasShown();
+        for (var i = 0; i < this._children.length; ++i)
+            this._children[i]._processShow();
+
+        this._processWasShown();
     },
 
     /**
@@ -172,6 +191,8 @@ WebInspector.View.prototype = {
      */
     detach: function(overrideHideOnDetach)
     {
+        delete this._toShow;
+
         var parentElement = this.element.parentElement;
         if (!parentElement)
             return;

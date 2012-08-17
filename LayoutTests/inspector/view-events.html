@@ -194,6 +194,8 @@ function test()
         function testImplicitRemoveChild(next)
         {
             var parentView = new TestView("Parent");
+            parentView.show(WebInspector.inspectorView.element);
+
             var div = document.createElement("div");
             parentView.element.appendChild(div);
 
@@ -211,6 +213,8 @@ function test()
         function testRemoveChildren(next)
         {
             var parentView = new TestView("Parent");
+            parentView.show(WebInspector.inspectorView.element);
+
             var childView = new TestView("Child");
             childView.show(parentView.element);
             parentView.element.appendChild(document.createElement("div"));
@@ -225,6 +229,8 @@ function test()
         function testImplicitRemoveChildren(next)
         {
             var parentView = new TestView("Parent");
+            parentView.show(WebInspector.inspectorView.element);
+
             var div = document.createElement("div");
             parentView.element.appendChild(div);
 

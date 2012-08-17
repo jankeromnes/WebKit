@@ -123,19 +123,34 @@ Error: Attempt to remove element containing view via regular DOM operation
 
 Running: testImplicitRemoveChild
 Parent()
+Parent.show()
+  Parent.wasShown()
+  Parent.onResize()
 Child()
 Child.show()
+  Child.wasShown()
+  Child.onResize()
 Error: Attempt to remove element containing view via regular DOM operation
 
 Running: testRemoveChildren
 Parent()
+Parent.show()
+  Parent.wasShown()
+  Parent.onResize()
 Child()
 Child.show()
+  Child.wasShown()
+  Child.onResize()
 Error: Attempt to remove element containing view via regular DOM operation
 
 Running: testImplicitRemoveChildren
 Parent()
+Parent.show()
+  Parent.wasShown()
+  Parent.onResize()
 Child()
 Child.show()
+  Child.wasShown()
+  Child.onResize()
 Error: Attempt to remove element containing view via regular DOM operation
 
