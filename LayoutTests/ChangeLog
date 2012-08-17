@@ -1,3 +1,15 @@
+2012-08-16  Jan Keromnes  <janx@linux.com>
+
+        Web Inspector: SourceFrame shouldn't be a View
+        https://bugs.webkit.org/show_bug.cgi?id=93444
+
+        Reviewed by NOBODY (OOPS!).
+
+        Use TextEditor as a View instead of SourceFrame.
+
+        * inspector/debugger/reveal-execution-line.html:
+        * inspector/debugger/source-frame-count.html:
+
 2012-08-16  Adrienne Walker  <enne@google.com>
 
         [chromium] Rebaseline media-document-audio-repaint after Chromium r151988
