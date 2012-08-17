@@ -288,6 +288,7 @@ modules = [
             "ExtensionPanel.js",
             "ExtensionRegistryStub.js",
             "ExtensionServer.js",
+            "ExtensionTextEditor.js",
             "ExtensionView.js",
         ]
     },

@@ -43,7 +43,9 @@ WebInspector.SourceFrame = function(contentProvider)
 
     var textEditorDelegate = new WebInspector.TextEditorDelegateForSourceFrame(this);
 
-    if (WebInspector.experimentsSettings.codemirror.isEnabled())
+    if (WebInspector.editorRegistry.dispatch())
+        this._textEditor = new WebInspector.ExtensionTextEditor(contentProvider, textEditorDelegate, WebInspector.currentExtensionEditor);
+    else if (WebInspector.experimentsSettings.codemirror.isEnabled())
         this._textEditor = new WebInspector.CodeMirrorTextEditor(this._url, textEditorDelegate);
     else
         this._textEditor = new WebInspector.DefaultTextEditor(this._url, textEditorDelegate);

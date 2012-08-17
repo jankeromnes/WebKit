@@ -29,6 +29,12 @@
  */
 
 var WebInspector = {
+    _extensionEditorDescriptors: function()
+    {
+        this.extensionEditors = {};
+        this.currentExtensionEditor = null;
+    },
+
     _panelDescriptors: function()
     {
         this.panels = {};
@@ -506,6 +512,18 @@ WebInspector._doLoadedDoneWithCapabilities = function()
     this._zoomLevel = WebInspector.settings.zoomLevel.get();
     if (this._zoomLevel)
         this._requestZoom();
+
+    this._extensionEditorDescriptors();
+
+    function setDefaultEditor()
+    {
+        this.currentExtensionEditor = null;
+        return false;
+    }
+    var defaultEditor = WebInspector.UIString("default editor");
+    var editorSetting = WebInspector.settings.createSetting("editor", defaultEditor);
+    this.editorRegistry = new WebInspector.HandlerRegistry(editorSetting);
+    this.editorRegistry.registerHandler(defaultEditor, setDefaultEditor.bind(this));
 
     var autoselectPanel = WebInspector.UIString("a panel chosen automatically");
     var openAnchorLocationSetting = WebInspector.settings.createSetting("openLinkHandler", autoselectPanel);

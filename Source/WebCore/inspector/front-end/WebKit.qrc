@@ -65,6 +65,7 @@
     <file>ExtensionPanel.js</file>
     <file>ExtensionRegistryStub.js</file>
     <file>ExtensionServer.js</file>
+    <file>ExtensionTextEditor.js</file>
     <file>ExtensionView.js</file>
     <file>FileContentView.js</file>
     <file>FileManager.js</file>

@@ -64,6 +64,7 @@ function defineCommonExtensionSymbols(apiPrivate)
         ElementsPanelObjectSelected: "panel-objectSelected-elements",
         NetworkRequestFinished: "network-request-finished",
         Reset: "reset",
+        EditResource: "edit-resource-",
         OpenResource: "open-resource",
         PanelSearch: "panel-search-",
         Reload: "Reload",
@@ -79,6 +80,7 @@ function defineCommonExtensionSymbols(apiPrivate)
         AddAuditResult: "addAuditResult",
         AddConsoleMessage: "addConsoleMessage",
         AddRequestHeaders: "addRequestHeaders",
+        CreateEditor: "createEditor",
         CreatePanel: "createPanel",
         CreateSidebarPane: "createSidebarPane",
         CreateStatusBarButton: "createStatusBarButton",
@@ -176,12 +178,13 @@ EventSinkImpl.prototype = {
 function InspectorExtensionAPI()
 {
     this.audits = new Audits();
-    this.inspectedWindow = new InspectedWindow();
-    this.panels = new Panels();
-    this.network = new Network();
-    defineDeprecatedProperty(this, "webInspector", "resources", "network");
-    this.timeline = new Timeline();
     this.console = new ConsoleAPI();
+    this.inspectedWindow = new InspectedWindow();
+    this.network = new Network();
+    this.panels = new Panels();
+    defineDeprecatedProperty(this, "webInspector", "resources", "network");
+    this.sources = new Sources();
+    this.timeline = new Timeline();
 
     this.onReset = new EventSink(events.Reset);
 }
@@ -716,6 +719,46 @@ ResourceImpl.prototype = {
 /**
  * @constructor
  */
+function Sources()
+{
+}
+
+Sources.prototype = {
+    createEditor: function(title, page, callback)
+    {
+        var id = "extension-editor-" + extensionServer.nextObjectId();
+        var request = {
+            command: commands.CreateEditor,
+            id: id,
+            title: title,
+            page: page
+        };
+        extensionServer.sendRequest(request, callback && callback.bind(this, new ExtensionEditor(id)));
+    }
+};
+
+/**
+ * @constructor
+ * @extends {ExtensionViewImpl}
+ */
+function ExtensionEditorImpl(id)
+{
+    ExtensionViewImpl.call(this, id);
+
+    function dispatchResourceEvent(message)
+    {
+        this._fire(new Resource(message.arguments[0]));
+    }
+    this.onOpenResource = new EventSink(events.EditResource + id, dispatchResourceEvent);
+}
+
+ExtensionEditorImpl.prototype = { };
+
+ExtensionEditorImpl.prototype.__proto__ = ExtensionViewImpl.prototype;
+
+/**
+ * @constructor
+ */
 function TimelineImpl()
 {
     this.onEventRecorded = new EventSink(events.TimelineEventRecorded);
@@ -848,6 +891,7 @@ var AuditCategory = declareInterfaceClass(AuditCategoryImpl);
 var AuditResult = declareInterfaceClass(AuditResultImpl);
 var Button = declareInterfaceClass(ButtonImpl);
 var EventSink = declareInterfaceClass(EventSinkImpl);
+var ExtensionEditor = declareInterfaceClass(ExtensionEditorImpl);
 var ExtensionPanel = declareInterfaceClass(ExtensionPanelImpl);
 var ExtensionSidebarPane = declareInterfaceClass(ExtensionSidebarPaneImpl);
 var PanelWithSidebar = declareInterfaceClass(PanelWithSidebarImpl);

@@ -50,6 +50,7 @@ WebInspector.ExtensionServer = function()
     this._registerHandler(commands.AddAuditResult, this._onAddAuditResult.bind(this));
     this._registerHandler(commands.AddConsoleMessage, this._onAddConsoleMessage.bind(this));
     this._registerHandler(commands.AddRequestHeaders, this._onAddRequestHeaders.bind(this));
+    this._registerHandler(commands.CreateEditor, this._onCreateEditor.bind(this));
     this._registerHandler(commands.CreatePanel, this._onCreatePanel.bind(this));
     this._registerHandler(commands.CreateSidebarPane, this._onCreateSidebarPane.bind(this));
     this._registerHandler(commands.CreateStatusBarButton, this._onCreateStatusBarButton.bind(this));
@@ -99,6 +100,12 @@ WebInspector.ExtensionServer.prototype = {
     notifyButtonClicked: function(identifier)
     {
         this._postNotification(WebInspector.extensionAPI.Events.ButtonClicked + identifier);
+    },
+
+    notifyResourceEdited: function(identifier, contentProvider)
+    {
+        console.log('notify resource edited', contentProvider);
+        this._postNotification(WebInspector.extensionAPI.Events.EditResource + identifier, this._makeResource(contentProvider));
     },
 
     _inspectedURLChanged: function(event)
@@ -186,6 +193,31 @@ WebInspector.ExtensionServer.prototype = {
             }
         }
         NetworkAgent.setExtraHTTPHeaders(allHeaders);
+    },
+
+    _onCreateEditor: function(message, port)
+    {
+        var id = message.id
+        // The ids are generated on the client API side and must be unique, so the check below
+        // shouldn't be hit unless someone is bypassing the API.
+        if (id in this._clientObjects || id in WebInspector.extensionEditors)
+            return this._status.E_EXISTS(id);
+
+        var page = this._expandResourcePath(port._extensionOrigin, message.page);
+        var editor = new WebInspector.ExtensionView(id, page, "extension fill");
+        console.log('extension editor', id, 'created!');
+        this._clientObjects[id] = editor;
+        WebInspector.extensionEditors[id] = editor;
+
+        WebInspector.editorRegistry.registerHandler(message.title, this._setCurrentExtensionEditor.bind(this, id));
+
+        return this._status.OK();
+    },
+
+    _setCurrentExtensionEditor: function(id)
+    {
+        WebInspector.currentExtensionEditor = id;
+        return !!WebInspector.currentExtensionEditor;
     },
 
     _onCreatePanel: function(message, port)

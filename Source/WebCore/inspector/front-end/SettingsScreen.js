@@ -292,9 +292,13 @@ WebInspector.GenericSettingsTab = function()
     p.appendChild(this._createCheckboxSetting(WebInspector.UIString("Preserve log upon navigation"), WebInspector.settings.preserveConsoleLog));
 
     if (WebInspector.extensionServer.hasExtensions()) {
-        var handlerSelector = new WebInspector.HandlerSelector(WebInspector.openAnchorLocationRegistry);
         p = this._appendSection(WebInspector.UIString("Extensions"));
-        p.appendChild(this._createCustomSetting(WebInspector.UIString("Open links in"), handlerSelector.element));
+
+        var editorSelector = new WebInspector.HandlerSelector(WebInspector.editorRegistry);
+        p.appendChild(this._createCustomSetting(WebInspector.UIString("Edit files in"), editorSelector.element));
+
+        var linksHandlerSelector = new WebInspector.HandlerSelector(WebInspector.openAnchorLocationRegistry);
+        p.appendChild(this._createCustomSetting(WebInspector.UIString("Open links in"), linksHandlerSelector.element));
     }
 }
 
